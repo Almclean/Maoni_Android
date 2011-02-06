@@ -13,6 +13,7 @@ public class Maoni extends Activity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "In onCreate.");
         GLSurfaceView glsv = new GLSurfaceView(this);
+        glsv.setEGLContextClientVersion(2);
         Log.i(TAG, "Created GLSurfaceView.");
         glsv.setRenderer(new MainRenderer(this.getApplicationContext().getResources()));
         Log.i(TAG, "Created MainRenderer");

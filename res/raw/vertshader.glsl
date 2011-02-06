@@ -1,12 +1,7 @@
-#version 330
-
-smooth in vec4 theColor;
-
-out vec4 outputColor;
+attribute vec4 vVector;
+uniform mat4 mvpMatrix;
 
 void main()
 {
-    float lerpValue = gl_FragCoord.y / 600.0f;
-    
-    outputColor = theColor;
+    gl_Position = mvpMatrix * vVector;
 }

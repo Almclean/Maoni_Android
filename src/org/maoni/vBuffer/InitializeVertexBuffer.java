@@ -10,18 +10,19 @@ public enum InitializeVertexBuffer {
 	;
 	
 	public int createVertexBufferObject(float vertices[]) {
+		
 		IntBuffer positionBufferObject = IntBuffer.allocate(1);
 		glGenBuffers(1, positionBufferObject);
 
 		FloatBuffer fb = FloatBuffer.allocate(vertices.length);
 		fb.put(vertices);
 		fb.flip();
-		glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject.);
-		glBufferData(GL_ARRAY_BUFFER, fb, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
-		glVertexAttribPo
+		
+		glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject.get(0));
+		glBufferData(GL_ARRAY_BUFFER, fb.remaining() << 2, fb, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 			
-		return positionBufferObject;
+		positionBufferObject.rewind();
+		return positionBufferObject.get(0);
 	}
 }
