@@ -20,20 +20,6 @@ public enum CreateShader {
 		this.shaderType = shaderType;
 	}
 	
-	public int load(final String shaderLocation) {
-		int shader = glCreateShader(shaderType);
-		
-		final String shaderSource = loadShaderFromFile(shaderLocation);
-		
-		glShaderSource(shader, shaderSource);
-		glCompileShader(shader);
-	
-		if(GetLogInfo.INSTANCE.printLogInfo(this.name() + " Shader", shader)) {
-			shader = 0;
-		}
-		return shader;
-	}
-	
 	public int load(final InputStream shaderLocation) {
 		int shader = glCreateShader(shaderType);
 		
@@ -46,23 +32,6 @@ public enum CreateShader {
 			shader = 0;
 		}
 		return shader;
-	}
-
-	private String loadShaderFromFile(final String shaderLocation) {
-		final StringBuffer sb = new StringBuffer();
-		BufferedReader buf;
-		String line;
-		try {
-			buf = new BufferedReader(new FileReader(shaderLocation));
-			while ((line = buf.readLine()) != null) {
-				sb.append(line);
-				sb.append("\n");
-			}
-			buf.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		return sb.toString();
 	}
 	
 	private String loadShaderFromFile(final InputStream shaderLocation) {

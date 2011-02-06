@@ -1,6 +1,7 @@
 package org.maoni.shaders.util;
 
 import static android.opengl.GLES20.*;
+import android.util.Log;
 
 public enum GetLogInfo {
 	INSTANCE,
@@ -11,9 +12,10 @@ public enum GetLogInfo {
         
         if (errorLog.length() > 1) {
             // We have some info we need to output.
-            System.out.println("Info log for " + ObjectType + " : \n " + errorLog);
+            Log.e("ShaderInfo", "Info log for " + ObjectType + " : \n " + errorLog);
             return true;
         } else {
+        	Log.i("ShaderInfo", "Loaded " + ObjectType + " successfully");
         	return false;
         }
 	}
