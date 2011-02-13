@@ -46,51 +46,49 @@ public class MainRenderer implements Renderer {
 	private FloatBuffer fb;
 	private int matrixUniformLoc;
 	private int vertexHandle;
-	private int colorHandle;
 	private FloatBuffer cb;
-	
+	private final SphereBatch sb;
+
+	private int colorHandle;
 	
 	
 	public MainRenderer(Resources resources) {
 		this._PROGRAM = 0;
 		this.res = resources;
+		sb = new SphereBatch(2, 30, 30);
 	}
 	
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClearDepthf(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glUseProgram(_PROGRAM);
 		matrixUniformLoc = glGetUniformLocation(_PROGRAM, "mvpMatrix");
 		
-		glVertexAttribPointer(colorHandle, 4, GL_FLOAT, false, 0, cb);
-		glEnableVertexAttribArray(colorHandle);
-
-		glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 0, fb);
+    	glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 0, sb.getVertexCoordData());
 		glEnableVertexAttribArray(vertexHandle);
         
 		long time = SystemClock.uptimeMillis() % 4000L;
         float angle = 0.090f * ((int) time);
         
         Matrix.setIdentityM(mMMatrix, 0);
-        Matrix.translateM(mMMatrix, 0, 0, 0, -6.0f);
+        Matrix.translateM(mMMatrix, 0, 0, 0, 4.0f);
         Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 0.0f, 1.0f);
-        Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
         Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
 
 		glUniformMatrix4fv(matrixUniformLoc, 0, false, mMVPMatrix, 0);
-		
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_POINTS, sb.getIndexLength() * 2, GL_UNSIGNED_SHORT, sb.getIndexData());
 		glUseProgram(0);
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 ignored, int width, int height) {
 		glViewport(0, 0, width, height);
+		glClearDepthf(1.0f);
+		
 		float ratio = (float) width / height;
 		Matrix.frustumM(mProjMatrix, 0, ratio, -ratio, -1.0f, 1.0f, 1.0f, 100.0f);
 	}
@@ -105,17 +103,11 @@ public class MainRenderer implements Renderer {
 		_PROGRAM = CreateProgram.INSTANCE.create(shaderList);
 		
 		vertexHandle = glGetAttribLocation(_PROGRAM, "vVector");
-		colorHandle = glGetAttribLocation(_PROGRAM, "a_color");
+	
+		Log.e(TAG, "Vertex Length = " + sb.getVertexLength());
+		Log.e(TAG, "Index Length = " + sb.getIndexLength());
 		
-		fb = ByteBuffer.allocateDirect(vertexPositions.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		fb.put(vertexPositions);
-		fb.flip();
-		
-		this.cb = ByteBuffer.allocateDirect(colours.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		cb.put(colours);
-		cb.rewind();
-
-		Matrix.setLookAtM(mVMatrix, 0, 0, 0, -10.0f, 0, 0, 0, 0.0f, 1.0f, 0.0f);
+    	Matrix.setLookAtM(mVMatrix, 0, 0, 0, -5.0f, 0, 0, 0, 0.0f, 1.0f, 0.0f);
 	}
 
 }
