@@ -8,12 +8,15 @@ import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11;
 
 import org.maoni.shaders.util.CreateProgram;
 import org.maoni.shaders.util.CreateShader;
+import org.maoni.shaders.util.GetLogInfo;
 
 import static android.opengl.GLES20.*;
 import android.content.res.Resources;
+import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.opengl.GLSurfaceView.Renderer;
 import android.os.SystemClock;
@@ -22,10 +25,17 @@ import android.util.Log;
 public class MainRenderer implements Renderer {
 	
 	private final String TAG = "MainRenderer";
-	private final float[] vertexPositions = {
-            -1.0f, -0.5f, 0, -0.5f, 0.0f,
-            1.0f, -0.5f, 0, 1.5f, -0.0f,
-            0.0f,  1.11803399f, 0, 0.5f,  1.61803399f };
+	
+	private static final float vertexPositions[] = { 
+		-1.0f, -0.5f, 0,
+		1.0f, -0.5f, 0,
+		0.0f,  1.0f, 0};
+	
+	private static final float colours[] = {
+		 1.0f, 0.0f, 0.0f, 1.0f,
+		 0.0f, 1.0f, 0.0f, 1.0f,
+		 0.0f, 0.0f, 1.0f, 1.0f, };
+	
 	private float[] mProjMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mMVPMatrix = new float[16];
@@ -36,6 +46,8 @@ public class MainRenderer implements Renderer {
 	private FloatBuffer fb;
 	private int matrixUniformLoc;
 	private int vertexHandle;
+	private int colorHandle;
+	private FloatBuffer cb;
 	
 	
 	
@@ -52,21 +64,26 @@ public class MainRenderer implements Renderer {
 		
 		glUseProgram(_PROGRAM);
 		matrixUniformLoc = glGetUniformLocation(_PROGRAM, "mvpMatrix");
-		fb.position(0);
+		
+		glVertexAttribPointer(colorHandle, 4, GL_FLOAT, false, 0, cb);
+		glEnableVertexAttribArray(colorHandle);
 
-		glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 5 << 2, fb);
+		glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 0, fb);
 		glEnableVertexAttribArray(vertexHandle);
         
 		long time = SystemClock.uptimeMillis() % 4000L;
         float angle = 0.090f * ((int) time);
         
         Matrix.setIdentityM(mMMatrix, 0);
-        Matrix.translateM(mMMatrix, 0, 0, 0, -1.0f);
-        Matrix.rotateM(mMMatrix, 0, angle, 0, 0, 1.0f);
+        Matrix.translateM(mMMatrix, 0, 0, 0, -6.0f);
+        Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 0.0f, 1.0f);
+        Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
+        Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
 
 		glUniformMatrix4fv(matrixUniformLoc, 0, false, mMVPMatrix, 0);
+		
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glUseProgram(0);
 	}
@@ -88,12 +105,17 @@ public class MainRenderer implements Renderer {
 		_PROGRAM = CreateProgram.INSTANCE.create(shaderList);
 		
 		vertexHandle = glGetAttribLocation(_PROGRAM, "vVector");
+		colorHandle = glGetAttribLocation(_PROGRAM, "a_color");
 		
-		this.fb = ByteBuffer.allocateDirect(vertexPositions.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		fb = ByteBuffer.allocateDirect(vertexPositions.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		fb.put(vertexPositions);
 		fb.flip();
+		
+		this.cb = ByteBuffer.allocateDirect(colours.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		cb.put(colours);
+		cb.rewind();
 
-		Matrix.setLookAtM(mVMatrix, 0, 0, 0, -5, 0, 0, 0, 0.0f, 1.0f, 0.0f);
+		Matrix.setLookAtM(mVMatrix, 0, 0, 0, -10.0f, 0, 0, 0, 0.0f, 1.0f, 0.0f);
 	}
 
 }
