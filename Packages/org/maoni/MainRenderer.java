@@ -1,22 +1,20 @@
 package org.maoni;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-import javax.microedition.khronos.opengles.GL11;
 
-import org.maoni.shaders.util.CreateProgram;
-import org.maoni.shaders.util.CreateShader;
-import org.maoni.shaders.util.GetLogInfo;
+import org.maoni.batchutil.Batch;
+import org.maoni.batchutil.OBJBatch;
+import org.maoni.batchutil.SphereBatch;
+import org.maoni.modelutil.ObjModelLoader;
+import org.maoni.shaderutil.CreateProgram;
+import org.maoni.shaderutil.CreateShader;
 
 import static android.opengl.GLES20.*;
 import android.content.res.Resources;
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.opengl.GLSurfaceView.Renderer;
 import android.os.SystemClock;
@@ -25,17 +23,7 @@ import android.util.Log;
 public class MainRenderer implements Renderer {
 	
 	private final String TAG = "MainRenderer";
-	
-	private static final float vertexPositions[] = { 
-		-1.0f, -0.5f, 0,
-		1.0f, -0.5f, 0,
-		0.0f,  1.0f, 0};
-	
-	private static final float colours[] = {
-		 1.0f, 0.0f, 0.0f, 1.0f,
-		 0.0f, 1.0f, 0.0f, 1.0f,
-		 0.0f, 0.0f, 1.0f, 1.0f, };
-	
+
 	private float[] mProjMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mMVPMatrix = new float[16];
@@ -43,21 +31,19 @@ public class MainRenderer implements Renderer {
 	
 	public final Resources res;
 	private int _PROGRAM;
-	private FloatBuffer fb;
 	private int matrixUniformLoc;
 	private int vertexHandle;
-	private FloatBuffer cb;
-	private final SphereBatch sb;
+	private final Batch ob;
 
-	private int colorHandle;
+
 	
 	
 	public MainRenderer(Resources resources) {
 		this._PROGRAM = 0;
 		this.res = resources;
-		sb = new SphereBatch(2, 30, 30);
+		this.ob = ObjModelLoader.INSTANCE.createBatch(res.openRawResource(R.raw.bendychair));
 	}
-	
+		
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -66,21 +52,21 @@ public class MainRenderer implements Renderer {
 		glUseProgram(_PROGRAM);
 		matrixUniformLoc = glGetUniformLocation(_PROGRAM, "mvpMatrix");
 		
-    	glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 0, sb.getVertexCoordData());
+    	glVertexAttribPointer(vertexHandle, 3, GL_FLOAT, false, 0, ob.getVertexCoordData());
 		glEnableVertexAttribArray(vertexHandle);
         
 		long time = SystemClock.uptimeMillis() % 4000L;
         float angle = 0.090f * ((int) time);
         
         Matrix.setIdentityM(mMMatrix, 0);
-        Matrix.translateM(mMMatrix, 0, 0, 0, 4.0f);
-        Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 0.0f, 1.0f);
+        Matrix.translateM(mMMatrix, 0, 0, 0, 2.0f);
         Matrix.rotateM(mMMatrix, 0, angle, 0.0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mVMatrix, 0, mMMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mMVPMatrix, 0);
 
 		glUniformMatrix4fv(matrixUniformLoc, 0, false, mMVPMatrix, 0);
-		glDrawElements(GL_POINTS, sb.getIndexLength() * 2, GL_UNSIGNED_SHORT, sb.getIndexData());
+		glDrawElements(GL_TRIANGLES, ob.getIndexLength(), GL_UNSIGNED_INT, ob.getIndexData());
+				
 		glUseProgram(0);
 	}
 
@@ -90,7 +76,7 @@ public class MainRenderer implements Renderer {
 		glClearDepthf(1.0f);
 		
 		float ratio = (float) width / height;
-		Matrix.frustumM(mProjMatrix, 0, ratio, -ratio, -1.0f, 1.0f, 1.0f, 100.0f);
+		Matrix.frustumM(mProjMatrix, 0, ratio, -ratio, -1.0f, 1.0f, 1.0f, 1000.0f);
 	}
 
 	@Override
@@ -104,10 +90,11 @@ public class MainRenderer implements Renderer {
 		
 		vertexHandle = glGetAttribLocation(_PROGRAM, "vVector");
 	
-		Log.e(TAG, "Vertex Length = " + sb.getVertexLength());
-		Log.e(TAG, "Index Length = " + sb.getIndexLength());
+		Log.e(TAG, "Vertex Length = " + ob.getVertexLength());
+		Log.e(TAG, "Index Length = " + ob.getIndexLength());
 		
-    	Matrix.setLookAtM(mVMatrix, 0, 0, 0, -5.0f, 0, 0, 0, 0.0f, 1.0f, 0.0f);
+    	Matrix.setLookAtM(mVMatrix, 0, 0.0f, 0.0f, -75.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    	
 	}
 
 }

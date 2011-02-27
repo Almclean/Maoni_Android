@@ -30,6 +30,7 @@ public class Maoni extends Activity implements OnTouchListener {
         glsv.setOnTouchListener(this);
         setContentView(glsv);
     }
+    
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		ES2SurfaceView es2 = (ES2SurfaceView) v;

@@ -1,4 +1,4 @@
-package org.maoni;
+package org.maoni.batchutil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

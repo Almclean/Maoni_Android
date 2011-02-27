@@ -1,4 +1,4 @@
-package org.maoni.shaders.util;
+package org.maoni.shaderutil;
 
 import java.io.BufferedReader;
 import java.io.IOException;

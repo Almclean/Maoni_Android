@@ -1,4 +1,4 @@
-package org.maoni;
+package org.maoni.batchutil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
